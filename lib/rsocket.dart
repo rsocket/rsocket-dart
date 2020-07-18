@@ -11,17 +11,21 @@ abstract class Closeable {
   void close();
 }
 
-class RSocket {
+abstract class Availability {
+  double availability();
+}
+
+class RSocket implements Closeable, Availability {
   RequestResponse requestResponse = (Payload payload) => Future.error(Exception('Unsupported'));
   FireAndForget fireAndForget = (Payload payload) => Future.error(Exception('Unsupported'));
   RequestStream requestStream = (Payload payload) => Stream.error(Exception('Unsupported'));
   RequestChannel requestChannel = (Stream<Payload> payloads) => Stream.error(Exception('Unsupported'));
   MetadataPush metadataPush = (Payload payload) => Future.error(Exception('Unsupported'));
 
-  void close() {
+  @override
+  void close() {}
 
-  }
-
+  @override
   double availability() {
     return 1.0;
   }
