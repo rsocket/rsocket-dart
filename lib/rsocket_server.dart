@@ -14,17 +14,17 @@ class RSocketServer {
 
   Future<Closeable> bind(String url) {
     var uri = Uri.parse(url);
-    var schema = uri.scheme;
-    if (schema == 'tcp') {
+    var scheme = uri.scheme;
+    if (scheme == 'tcp') {
       return ServerSocket.bind(uri.host, uri.port).then((serverSocket) {
         return TcpRSocketResponder(uri, serverSocket, socketAcceptor)..accept();
       });
-    } else if (schema == 'ws' || schema == 'wss') {
+    } else if (scheme == 'ws' || scheme == 'wss') {
       return HttpServer.bind(uri.host, uri.port).then((httpServer) {
         return WebSocketRSocketResponder(uri, httpServer, socketAcceptor)..accept();
       });
     } else {
-      return Future.error('${schema} unsupported');
+      return Future.error('${scheme} unsupported');
     }
   }
 }
