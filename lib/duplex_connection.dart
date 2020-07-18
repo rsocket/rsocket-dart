@@ -102,14 +102,14 @@ class WebSocketDuplexConnection extends DuplexConnection {
 
 Future<DuplexConnection> connectRSocket(String url, TcpChunkHandler handler) {
   var uri = Uri.parse(url);
-  var schema = uri.scheme;
-  if (schema == 'tcp') {
+  var scheme = uri.scheme;
+  if (scheme == 'tcp') {
     var socketFuture = Socket.connect(uri.host, uri.port);
     return socketFuture.then((socket) => TcpDuplexConnection(socket));
-  } else if (schema == 'ws' || schema == 'wss') {
+  } else if (scheme == 'ws' || scheme == 'wss') {
     var socketFuture = WebSocket.connect(url);
     return socketFuture.then((socket) => WebSocketDuplexConnection(socket));
   } else {
-    return Future.error('${schema} unsupported');
+    return Future.error('${scheme} unsupported');
   }
 }
