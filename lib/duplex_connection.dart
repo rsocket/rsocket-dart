@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:rsocket/rsocket.dart';
+
 import 'io/bytes.dart';
 
-abstract class DuplexConnection {
+abstract class DuplexConnection implements Closeable, Availability {
+  double _availability = 1.0;
   TcpChunkHandler receiveHandler;
   CloseHandler closeHandler;
 
@@ -11,7 +14,10 @@ abstract class DuplexConnection {
 
   void write(Uint8List chunk);
 
-  void close();
+  @override
+  double availability() {
+    return _availability;
+  }
 }
 
 typedef TcpChunkHandler = void Function(Uint8List chunk);
@@ -38,6 +44,7 @@ class TcpDuplexConnection extends DuplexConnection {
   void close() {
     if (!closed) {
       closed = true;
+      _availability = 0.0;
       if (socket != null) {
         socket.close();
       }
@@ -76,6 +83,7 @@ class WebSocketDuplexConnection extends DuplexConnection {
   void close() {
     if (!closed) {
       closed = true;
+      _availability = 0.0;
       if (webSocket != null) {
         webSocket.close();
       }
