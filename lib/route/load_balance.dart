@@ -97,7 +97,7 @@ class LoadBalanceRSocket extends RSocket {
       return null;
     }
     counter = counter + 1;
-    if (counter > poolSize) {
+    if (counter >= 0x7FFFFFFF) {
       counter = 0;
     }
     var rsocket = connections[counter % poolSize];
