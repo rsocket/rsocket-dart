@@ -16,11 +16,16 @@ abstract class Availability {
 }
 
 class RSocket implements Closeable, Availability {
-  RequestResponse requestResponse = (Payload payload) => Future.error(Exception('Unsupported'));
-  FireAndForget fireAndForget = (Payload payload) => Future.error(Exception('Unsupported'));
-  RequestStream requestStream = (Payload payload) => Stream.error(Exception('Unsupported'));
-  RequestChannel requestChannel = (Stream<Payload> payloads) => Stream.error(Exception('Unsupported'));
-  MetadataPush metadataPush = (Payload payload) => Future.error(Exception('Unsupported'));
+  RequestResponse requestResponse =
+      (Payload payload) => Future.error(Exception('Unsupported'));
+  FireAndForget fireAndForget =
+      (Payload payload) => Future.error(Exception('Unsupported'));
+  RequestStream requestStream =
+      (Payload payload) => Stream.error(Exception('Unsupported'));
+  RequestChannel requestChannel =
+      (Stream<Payload> payloads) => Stream.error(Exception('Unsupported'));
+  MetadataPush metadataPush =
+      (Payload payload) => Future.error(Exception('Unsupported'));
 
   @override
   void close() {}
@@ -49,7 +54,8 @@ class RSocket implements Closeable, Availability {
   }
 }
 
-typedef SocketAcceptor = RSocket Function(ConnectionSetupPayload setup, RSocket sendingSocket);
+typedef SocketAcceptor = RSocket Function(
+    ConnectionSetupPayload setup, RSocket sendingSocket);
 
 SocketAcceptor requestResponseAcceptor(RequestResponse requestResponse) {
   return (setup, sendingSocket) {

@@ -9,9 +9,9 @@ class Payload {
 
   Payload.from(this.metadata, this.data);
 
-  Payload.fromText(String metadata,String data):
-        metadata=Uint8List.fromList(utf8.encode(metadata)),
-        data=Uint8List.fromList(utf8.encode(data));
+  Payload.fromText(String metadata, String data)
+      : metadata = Uint8List.fromList(utf8.encode(metadata)),
+        data = Uint8List.fromList(utf8.encode(data));
 
   String getMetadataUtf8() {
     if (metadata != null) {
@@ -50,12 +50,12 @@ class ConnectionSetupPayload extends Payload {
 
   @override
   Map toJson() => {
-    'metadataMimeType': metadataMimeType,
-    'dataMimeType': dataMimeType,
-    'keepAliveInterval': keepAliveInterval,
-    'keepAliveMaxLifetime': keepAliveMaxLifetime,
-    'flags': flags,
-    'metadata': metadata,
-    'data': data
-  };
+        'metadataMimeType': metadataMimeType,
+        'dataMimeType': dataMimeType,
+        'keepAliveInterval': keepAliveInterval,
+        'keepAliveMaxLifetime': keepAliveMaxLifetime,
+        'flags': flags,
+        'metadata': metadata,
+        'data': data
+      };
 }

@@ -2,7 +2,10 @@ import 'package:rsocket/route/reflection.dart';
 
 import '../rsocket.dart';
 
-typedef RSocketCallHandler = dynamic Function(RSocketService rsocketServiceAnnotation, String methodName, List<dynamic> params);
+typedef RSocketCallHandler = dynamic Function(
+    RSocketService rsocketServiceAnnotation,
+    String methodName,
+    List<dynamic> params);
 
 class RSocketServiceStub {
   RSocketCallHandler rsocketCallHandler;
@@ -20,7 +23,8 @@ class RSocketServiceStub {
       methodName = methodName.substring(8, methodName.length - 2);
     }
     if (rsocketCallHandler != null) {
-      return rsocketCallHandler(rsocketServiceAnnotation, methodName, invocation.positionalArguments);
+      return rsocketCallHandler(
+          rsocketServiceAnnotation, methodName, invocation.positionalArguments);
     }
     throw ('rsocketCallHandler is null for ${rsocketServiceAnnotation.name}');
   }

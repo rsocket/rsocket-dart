@@ -28,12 +28,15 @@ class RSocketConnector {
       ..data = payload?.data
       ..metadata = payload?.metadata;
     return connectRSocket(url, handler).then((conn) {
-      var rsocketRequester = RSocketRequester('requester', connectionSetupPayload, conn);
+      var rsocketRequester =
+          RSocketRequester('requester', connectionSetupPayload, conn);
       if (acceptor != null) {
-        rsocketRequester.responder = acceptor(connectionSetupPayload, rsocketRequester);
+        rsocketRequester.responder =
+            acceptor(connectionSetupPayload, rsocketRequester);
         if (rsocketRequester.responder == null) {
           rsocketRequester.close();
-          return Future.error('RSOCKET-0x00000003: Connection refused, please check setup and security!');
+          return Future.error(
+              'RSOCKET-0x00000003: Connection refused, please check setup and security!');
         }
       } else {
         rsocketRequester.responder = RSocket();
