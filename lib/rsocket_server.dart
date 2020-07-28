@@ -21,7 +21,8 @@ class RSocketServer {
       });
     } else if (scheme == 'ws' || scheme == 'wss') {
       return HttpServer.bind(uri.host, uri.port).then((httpServer) {
-        return WebSocketRSocketResponder(uri, httpServer, socketAcceptor)..accept();
+        return WebSocketRSocketResponder(uri, httpServer, socketAcceptor)
+          ..accept();
       });
     } else {
       return Future.error('${scheme} unsupported');

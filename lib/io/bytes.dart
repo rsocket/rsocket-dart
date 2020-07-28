@@ -163,7 +163,8 @@ Uint8List i32ToBytes(int value) {
 }
 
 Uint8List i24ToBytes(int value) {
-  var uint8list = Uint8List(4)..buffer.asByteData().setUint32(0, value, Endian.big);
+  var uint8list = Uint8List(4)
+    ..buffer.asByteData().setUint32(0, value, Endian.big);
   return uint8list.sublist(1);
 }
 

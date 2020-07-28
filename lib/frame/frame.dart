@@ -101,8 +101,13 @@ class RSocketHeader {
     }
   }
 
-  Map toJson() =>
-      {'frameLength': frameLength, 'streamId': streamId, 'type': type, 'flags': flags, 'metaPresent': metaPresent};
+  Map toJson() => {
+        'frameLength': frameLength,
+        'streamId': streamId,
+        'type': type,
+        'flags': flags,
+        'metaPresent': metaPresent
+      };
 }
 
 class RSocketFrame {
@@ -234,7 +239,8 @@ class RequestResponseFrame extends RSocketFrame {
 
   RequestResponseFrame();
 
-  RequestResponseFrame.fromBuffer(RSocketHeader header, RSocketByteBuffer buffer) {
+  RequestResponseFrame.fromBuffer(
+      RSocketHeader header, RSocketByteBuffer buffer) {
     this.header = header;
     if (header != null && header.frameLength > 0) {
       payload = decodePayload(buffer, header.metaPresent, header.frameLength);
@@ -261,7 +267,8 @@ class RequestStreamFrame extends RSocketFrame {
 
   RequestStreamFrame();
 
-  RequestStreamFrame.fromBuffer(RSocketHeader header, RSocketByteBuffer buffer) {
+  RequestStreamFrame.fromBuffer(
+      RSocketHeader header, RSocketByteBuffer buffer) {
     this.header = header;
     initialRequestN = buffer.readI32();
     if (header != null && header.frameLength > 0) {
@@ -276,7 +283,8 @@ class RequestChannelFrame extends RSocketFrame {
 
   RequestChannelFrame();
 
-  RequestChannelFrame.fromBuffer(RSocketHeader header, RSocketByteBuffer buffer) {
+  RequestChannelFrame.fromBuffer(
+      RSocketHeader header, RSocketByteBuffer buffer) {
     this.header = header;
     initialRequestN = buffer.readI32();
     if (header != null && header.frameLength > 0) {
@@ -328,13 +336,18 @@ class PayloadFrame extends RSocketFrame {
 }
 
 class FrameCodec {
-  static Uint8List encodeSetupFrame(int keepAliveInterval, int keepAliveMaxLifetime, String metadataMimeType,
-      String dataMimeType, Payload setupPayload) {
+  static Uint8List encodeSetupFrame(
+      int keepAliveInterval,
+      int keepAliveMaxLifetime,
+      String metadataMimeType,
+      String dataMimeType,
+      Payload setupPayload) {
     var frameBuffer = RSocketByteBuffer();
     frameBuffer.writeI24(0); // frame length
     frameBuffer.writeI32(0); //stream id
     //frame type with metadata indicator without resume token and lease
-    writeTFrameTypeAndFlags(frameBuffer, frame_types.SETUP, setupPayload?.metadata, 0);
+    writeTFrameTypeAndFlags(
+        frameBuffer, frame_types.SETUP, setupPayload?.metadata, 0);
     frameBuffer.writeI16(MAJOR_VERSION);
     frameBuffer.writeI16(MINOR_VERSION);
     frameBuffer.writeI32(keepAliveInterval);
@@ -371,7 +384,8 @@ class FrameCodec {
     var frameBuffer = RSocketByteBuffer();
     frameBuffer.writeI24(0); // frame length
     frameBuffer.writeI32(streamId); //stream id
-    writeTFrameTypeAndFlags(frameBuffer, frame_types.REQUEST_RESPONSE, payload.metadata, 0);
+    writeTFrameTypeAndFlags(
+        frameBuffer, frame_types.REQUEST_RESPONSE, payload.metadata, 0);
     writePayload(frameBuffer, payload);
     refillFrameLength(frameBuffer);
     return frameBuffer.toUint8Array();
@@ -381,7 +395,8 @@ class FrameCodec {
     var frameBuffer = RSocketByteBuffer();
     frameBuffer.writeI24(0); // frame length
     frameBuffer.writeI32(streamId); //stream id
-    writeTFrameTypeAndFlags(frameBuffer, frame_types.REQUEST_FNF, payload.metadata, 0);
+    writeTFrameTypeAndFlags(
+        frameBuffer, frame_types.REQUEST_FNF, payload.metadata, 0);
     writePayload(frameBuffer, payload);
     refillFrameLength(frameBuffer);
     return frameBuffer.toUint8Array();
@@ -398,29 +413,34 @@ class FrameCodec {
     return frameBuffer.toUint8Array();
   }
 
-  static Uint8List encodeRequestStreamFrame(int streamId, int initialRequestN, Payload payload) {
+  static Uint8List encodeRequestStreamFrame(
+      int streamId, int initialRequestN, Payload payload) {
     var frameBuffer = RSocketByteBuffer();
     frameBuffer.writeI24(0); // frame length
     frameBuffer.writeI32(streamId); //stream id
-    writeTFrameTypeAndFlags(frameBuffer, frame_types.REQUEST_STREAM, payload.metadata, 0);
+    writeTFrameTypeAndFlags(
+        frameBuffer, frame_types.REQUEST_STREAM, payload.metadata, 0);
     frameBuffer.writeI32(initialRequestN);
     writePayload(frameBuffer, payload);
     refillFrameLength(frameBuffer);
     return frameBuffer.toUint8Array();
   }
 
-  static Uint8List encodeChannelFrame(int streamId, int initialRequestN, Payload payload) {
+  static Uint8List encodeChannelFrame(
+      int streamId, int initialRequestN, Payload payload) {
     var frameBuffer = RSocketByteBuffer();
     frameBuffer.writeI24(0); // frame length
     frameBuffer.writeI32(streamId); //stream id
-    writeTFrameTypeAndFlags(frameBuffer, frame_types.REQUEST_CHANNEL, payload.metadata, 0);
+    writeTFrameTypeAndFlags(
+        frameBuffer, frame_types.REQUEST_CHANNEL, payload.metadata, 0);
     frameBuffer.writeI32(initialRequestN);
     writePayload(frameBuffer, payload);
     refillFrameLength(frameBuffer);
     return frameBuffer.toUint8Array();
   }
 
-  static Uint8List encodePayloadFrame(int streamId, bool completed, Payload payload) {
+  static Uint8List encodePayloadFrame(
+      int streamId, bool completed, Payload payload) {
     var frameBuffer = RSocketByteBuffer();
     frameBuffer.writeI24(0); // frame length
     frameBuffer.writeI32(streamId); //stream id
@@ -430,7 +450,8 @@ class FrameCodec {
     } else {
       flags = flags | 0x20; //next
     }
-    writeTFrameTypeAndFlags(frameBuffer, frame_types.PAYLOAD, payload.metadata, flags);
+    writeTFrameTypeAndFlags(
+        frameBuffer, frame_types.PAYLOAD, payload.metadata, flags);
     writePayload(frameBuffer, payload);
     refillFrameLength(frameBuffer);
     return frameBuffer.toUint8Array();
@@ -449,7 +470,8 @@ class FrameCodec {
   }
 }
 
-Payload decodePayload(RSocketByteBuffer buffer, bool metadataPresent, int frameLength) {
+Payload decodePayload(
+    RSocketByteBuffer buffer, bool metadataPresent, int frameLength) {
   var payload = Payload();
   var dataLength = frameLength - 6;
   if (metadataPresent) {
@@ -467,7 +489,8 @@ Payload decodePayload(RSocketByteBuffer buffer, bool metadataPresent, int frameL
   return payload;
 }
 
-void writeTFrameTypeAndFlags(RSocketByteBuffer frameBuffer, int frameType, Uint8List metadata, int flags) {
+void writeTFrameTypeAndFlags(RSocketByteBuffer frameBuffer, int frameType,
+    Uint8List metadata, int flags) {
   if (metadata != null) {
     frameBuffer.writeI8(frameType << 2 | 1);
   } else {

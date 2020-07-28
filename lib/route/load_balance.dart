@@ -33,19 +33,24 @@ class LoadBalanceRSocket extends RSocket {
   LoadBalanceRSocket() {
     this
       ..fireAndForget = (payload) {
-        return getRandomRSocket()?.fireAndForget(payload) ?? Future.error(Exception('No available connection'));
+        return getRandomRSocket()?.fireAndForget(payload) ??
+            Future.error(Exception('No available connection'));
       }
       ..requestResponse = (payload) {
-        return getRandomRSocket()?.requestResponse(payload) ?? Future.error(Exception('No available connection'));
+        return getRandomRSocket()?.requestResponse(payload) ??
+            Future.error(Exception('No available connection'));
       }
       ..requestStream = (payload) {
-        return getRandomRSocket()?.requestStream(payload) ?? Stream.error(Exception('No available connection'));
+        return getRandomRSocket()?.requestStream(payload) ??
+            Stream.error(Exception('No available connection'));
       }
       ..requestChannel = (payloads) {
-        return getRandomRSocket()?.requestChannel(payloads) ?? Stream.error(Exception('No available connection'));
+        return getRandomRSocket()?.requestChannel(payloads) ??
+            Stream.error(Exception('No available connection'));
       }
       ..metadataPush = (payload) {
-        return getRandomRSocket()?.metadataPush(payload) ?? Future.error(Exception('No available connection'));
+        return getRandomRSocket()?.metadataPush(payload) ??
+            Future.error(Exception('No available connection'));
       };
   }
 
@@ -76,7 +81,7 @@ class LoadBalanceRSocket extends RSocket {
 
     for (var url in urls) {
       var rsocket = url2Conn[url];
-      rsocket ??= await _connect(url);
+      rsocket ??= await connect(url);
       newConnections.add(rsocket);
       newUrl2Conn[url] = rsocket;
     }
@@ -111,7 +116,7 @@ class LoadBalanceRSocket extends RSocket {
     }
   }
 
-  Future<RSocket> _connect(String url) async {
+  Future<RSocket> connect(String url) async {
     return RSocketConnector.create().connect(url);
   }
 }

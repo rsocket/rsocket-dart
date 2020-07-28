@@ -23,7 +23,8 @@ class CompositeMetadata extends Iterable<MetadataEntry> {
 
   void addMetadata(MetadataEntry metadata) {
     if (WellKnownMimeType.isWellKnownType(metadata.mimeType)) {
-      addWellKnownMimeType(WellKnownMimeType.getMimeTypeId(metadata.mimeType), metadata.content);
+      addWellKnownMimeType(
+          WellKnownMimeType.getMimeTypeId(metadata.mimeType), metadata.content);
     } else {
       addExplicitMimeType(metadata.mimeType, metadata.content);
     }

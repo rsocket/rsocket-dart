@@ -25,7 +25,8 @@ class BaseResponder {
             ..dataMimeType = setupFrame.dataMimeType
             ..data = setupFrame.payload?.data
             ..metadata = setupFrame.payload?.data;
-          var temp = RSocketRequester('responder', connectionSetupPayload, duplexConn);
+          var temp =
+              RSocketRequester('responder', connectionSetupPayload, duplexConn);
           var responder = socketAcceptor(connectionSetupPayload, temp);
           if (responder == null) {
             duplexConn.close();
@@ -46,7 +47,8 @@ class BaseResponder {
 class TcpRSocketResponder extends BaseResponder implements Closeable {
   ServerSocket serverSocket;
 
-  TcpRSocketResponder(Uri uri, ServerSocket serverSocket, SocketAcceptor socketAcceptor) {
+  TcpRSocketResponder(
+      Uri uri, ServerSocket serverSocket, SocketAcceptor socketAcceptor) {
     this.uri = uri;
     this.socketAcceptor = socketAcceptor;
     this.serverSocket = serverSocket;
@@ -67,7 +69,8 @@ class TcpRSocketResponder extends BaseResponder implements Closeable {
 class WebSocketRSocketResponder extends BaseResponder implements Closeable {
   HttpServer httpServer;
 
-  WebSocketRSocketResponder(Uri uri, HttpServer httpServer, SocketAcceptor socketAcceptor) {
+  WebSocketRSocketResponder(
+      Uri uri, HttpServer httpServer, SocketAcceptor socketAcceptor) {
     this.uri = uri;
     this.socketAcceptor = socketAcceptor;
     this.httpServer = httpServer;
@@ -77,7 +80,8 @@ class WebSocketRSocketResponder extends BaseResponder implements Closeable {
     httpServer.listen((HttpRequest req) {
       if (req.uri.path == uri.path) {
         WebSocketTransformer.upgrade(req)
-            .then((webSocket) => receiveConnection(WebSocketDuplexConnection(webSocket)))
+            .then((webSocket) =>
+                receiveConnection(WebSocketDuplexConnection(webSocket)))
             .then((value) => {});
       }
     });
