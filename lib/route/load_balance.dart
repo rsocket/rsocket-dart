@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../rsocket.dart';
 import '../rsocket_connector.dart';
 
@@ -8,12 +10,16 @@ import '../rsocket_connector.dart';
 /// await rsocket.refreshUrl(['tcp://127.0.0.1:42252']);
 /// ```
 ///
-/// todo: health check, try to reconnection
 class LoadBalanceRSocket extends RSocket {
-  List<RSocket> connections = [];
-  Map<String, RSocket> url2Conn = {};
+  List<String> lastRSocketUrls = [];
+  Map<String, RSocket> activeRSockets = {};
+  List<RSocket> roundRobin = [];
+  List<String> unHealthyUrls = [];
   int poolSize = 0;
   int counter = 0;
+  int lastRefreshTimeStamp = 0;
+  static Duration HEALTH_CHECK_INTERVAL_SECONDS = const Duration(seconds: 15);
+  Timer healthCheckTimer;
 
   @override
   var fireAndForget;
@@ -52,6 +58,8 @@ class LoadBalanceRSocket extends RSocket {
         return getRandomRSocket()?.metadataPush(payload) ??
             Future.error(Exception('No available connection'));
       };
+    healthCheckTimer = Timer.periodic(
+        HEALTH_CHECK_INTERVAL_SECONDS, (Timer t) => checkActiveRSockets());
   }
 
   @override
@@ -61,40 +69,49 @@ class LoadBalanceRSocket extends RSocket {
 
   @override
   void close() {
-    url2Conn.forEach((url, rsocket) {
+    if (healthCheckTimer != null) {
+      healthCheckTimer.cancel();
+    }
+    activeRSockets.forEach((url, rsocket) {
       print('Close RSocket: ${url}');
       rsocket.close();
     });
   }
 
-  void closeStales(Map<String, RSocket> staleConnections) {
-    staleConnections.forEach((url, rsocket) {
+  void closeStales(Map<String, RSocket> staleRSockets) {
+    staleRSockets.forEach((url, rsocket) {
       print('Close RSocket: ${url}');
       rsocket.close();
     });
   }
 
   Future<void> refreshUrl(List<String> urls) async {
-    var newConnections = <RSocket>[];
+    lastRSocketUrls = urls;
+    lastRefreshTimeStamp = DateTime.now().millisecondsSinceEpoch;
+    var newRSockets = <RSocket>[];
     var newUrl2Conn = <String, RSocket>{};
-    var staleConnections = <String, RSocket>{};
+    var staleRSockets = <String, RSocket>{};
 
     for (var url in urls) {
-      var rsocket = url2Conn[url];
-      rsocket ??= await connect(url);
-      newConnections.add(rsocket);
-      newUrl2Conn[url] = rsocket;
+      var rsocket = activeRSockets[url];
+      try {
+        rsocket ??= await connect(url);
+        newRSockets.add(rsocket);
+        newUrl2Conn[url] = rsocket;
+      } on Exception {
+        unHealthyUrls.add(url);
+      }
     }
 
-    url2Conn.forEach((url, rsocket) {
+    activeRSockets.forEach((url, rsocket) {
       if (newUrl2Conn[url] == null) {
-        staleConnections[url] = rsocket;
+        staleRSockets[url] = rsocket;
       }
     });
-    connections = newConnections;
-    url2Conn = newUrl2Conn;
-    poolSize = connections.length;
-    closeStales(staleConnections);
+    roundRobin = newRSockets;
+    activeRSockets = newUrl2Conn;
+    poolSize = roundRobin.length;
+    closeStales(staleRSockets);
   }
 
   RSocket getRandomRSocket() {
@@ -105,15 +122,23 @@ class LoadBalanceRSocket extends RSocket {
     if (counter >= 0x7FFFFFFF) {
       counter = 0;
     }
-    var rsocket = connections[counter % poolSize];
+    var rsocket = roundRobin[counter % poolSize];
     if (rsocket.availability() == 0.0) {
-      connections.remove(rsocket);
-      poolSize = connections.length;
-      url2Conn.removeWhere((key, value) => value == rsocket);
+      roundRobin.remove(rsocket);
+      poolSize = roundRobin.length;
+      activeRSockets.removeWhere((key, value) => value == rsocket);
       return getRandomRSocket();
     } else {
       return rsocket;
     }
+  }
+
+  void checkActiveRSockets() {
+    //todo health check for active RSockets
+  }
+
+  void checkUnhealthyUris() {
+    //todo unhealthy check
   }
 
   Future<RSocket> connect(String url) async {
