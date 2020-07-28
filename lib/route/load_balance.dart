@@ -87,6 +87,7 @@ class LoadBalanceRSocket extends RSocket {
 
   Future<void> refreshUrl(List<String> urls) async {
     lastRSocketUrls = urls;
+    unHealthyUrls.clear();
     lastRefreshTimeStamp = DateTime.now().millisecondsSinceEpoch;
     var newRSockets = <RSocket>[];
     var newUrl2Conn = <String, RSocket>{};
