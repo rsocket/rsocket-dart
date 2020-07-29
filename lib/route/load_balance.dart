@@ -18,7 +18,7 @@ class LoadBalanceRSocket extends RSocket {
   int poolSize = 0;
   int counter = 0;
   int lastRefreshTimeStamp = 0;
-  static Duration HEALTH_CHECK_INTERVAL_SECONDS = const Duration(seconds: 15);
+  static final Duration healthCheckIntervalSeconds = const Duration(seconds: 15);
   Timer healthCheckTimer;
 
   @override
@@ -59,7 +59,7 @@ class LoadBalanceRSocket extends RSocket {
             Future.error(Exception('No available connection'));
       };
     healthCheckTimer = Timer.periodic(
-        HEALTH_CHECK_INTERVAL_SECONDS, (Timer t) => checkActiveRSockets());
+        healthCheckIntervalSeconds, (Timer t) => checkActiveRSockets());
   }
 
   @override
