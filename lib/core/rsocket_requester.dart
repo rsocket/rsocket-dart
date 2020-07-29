@@ -142,9 +142,7 @@ class RSocketRequester extends RSocket {
     connection.init();
     connection.write(setupPayloadFrame());
     if (mode == 'requester') {
-      const oneSec = Duration(seconds: 20);
-      keepAliveTimer = Timer.periodic(oneSec, (Timer t) {
-        print('timer 20 seconds');
+      keepAliveTimer = Timer.periodic(Duration(seconds: 30), (Timer t) {
         if (!closed) {
           connection.write(FrameCodec.encodeKeepAlive(false, 0));
         } else {
