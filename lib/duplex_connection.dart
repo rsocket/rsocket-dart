@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:rsocket/rsocket.dart';
+import 'rsocket.dart';
 
 import 'io/bytes.dart';
 
