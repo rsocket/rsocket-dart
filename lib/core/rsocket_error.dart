@@ -4,6 +4,11 @@ class RSocketException implements Exception {
 
   RSocketException(this.code, this.message);
 
+  @override
+  String toString() {
+    return 'RS-$code: $message';
+  }
+
   Map toJson() => {'code': code, 'message': message};
 }
 
