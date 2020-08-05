@@ -326,11 +326,9 @@ class PayloadFrame extends RSocketFrame {
 
   PayloadFrame.fromBuffer(RSocketHeader header, RSocketByteBuffer buffer) {
     this.header = header;
-    if (header.metaPresent) {
-      completed = (header.flags & 0x40) > 0;
-      if (header.frameLength > 0) {
-        payload = decodePayload(buffer, header.metaPresent, header.frameLength);
-      }
+    completed = (header.flags & 0x40) > 0;
+    if (header.frameLength > 0) {
+      payload = decodePayload(buffer, header.metaPresent, header.frameLength);
     }
   }
 }
