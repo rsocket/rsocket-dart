@@ -1,6 +1,4 @@
-import 'package:rsocket/rsocket_server.dart';
-import 'package:rsocket/payload.dart';
-import 'package:rsocket/rsocket.dart';
+import 'package:rsocket/shelf.dart';
 
 void main() async {
   const listenUrl = 'tcp://0.0.0.0:42252';
