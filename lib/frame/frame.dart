@@ -450,8 +450,13 @@ class FrameCodec {
     } else {
       flags = flags | 0x20; //next
     }
-    writeTFrameTypeAndFlags(
-        frameBuffer, frame_types.PAYLOAD, payload.metadata, flags);
+    if (payload != null) {
+      writeTFrameTypeAndFlags(
+          frameBuffer, frame_types.PAYLOAD, payload.metadata, flags);
+      writePayload(frameBuffer, payload);
+    } else {
+      writeTFrameTypeAndFlags(frameBuffer, frame_types.PAYLOAD, null, flags);
+    }
     writePayload(frameBuffer, payload);
     refillFrameLength(frameBuffer);
     return frameBuffer.toUint8Array();
