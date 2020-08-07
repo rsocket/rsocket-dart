@@ -159,7 +159,7 @@ class RSocketRequester extends RSocket {
     if (!closed) {
       closed = true;
       _availability = 0.0;
-      keepAliveTimer.cancel();
+      keepAliveTimer?.cancel();
       connection.close();
     }
   }
