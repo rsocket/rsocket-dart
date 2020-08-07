@@ -3,6 +3,7 @@ version: 0.1.0
 description: RSocket for Dart
 homepage: https://github.com/rsocket/rsocket-dart
 repository: https://github.com/rsocket/rsocket-dart.git
+issue_tracker: https://github.com/rsocket/rsocket-dart/issues
 environment:
   sdk: '>=2.7.0 <3.0.0'
 dependencies:
