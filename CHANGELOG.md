@@ -5,3 +5,4 @@
   * LoadBalance support
   * RSocket call Proxy stub from requester side
   * RSocket service routing for responder
+  * Published on https://pub.dev/packages/rsocket
