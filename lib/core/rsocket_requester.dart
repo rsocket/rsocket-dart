@@ -255,6 +255,29 @@ class RSocketRequester extends RSocket {
           responder.metadataPush(metadataPushFrame.payload).then((value) => {});
         }
         break;
+      case frame_types.REQUEST_STREAM:
+        var requestStreamFrame = frame as RequestStreamFrame;
+        var requesterStreamId = header.streamId;
+        if (responder != null && requestStreamFrame.payload != null) {
+          responder.requestStream(requestStreamFrame.payload).listen((payload) {
+            connection.write(FrameCodec.encodePayloadFrame(
+                requesterStreamId, false, payload));
+            //encodePayloadFrame(requesterStreamId, false, payload)
+          }, onDone: () {
+            connection.write(
+                FrameCodec.encodePayloadFrame(requesterStreamId, true, null));
+          }, onError: (Object error) {
+            if (error is RSocketException) {
+              var e = error;
+              connection.write(FrameCodec.encodeErrorFrame(
+                  requesterStreamId, e.code, e.message));
+            } else {
+              connection.write(FrameCodec.encodeErrorFrame(requesterStreamId,
+                  RSocketErrorCode.APPLICATION_ERROR, error.toString()));
+            }
+          });
+        }
+        break;
       default:
     }
   }
