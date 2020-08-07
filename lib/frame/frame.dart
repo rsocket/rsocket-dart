@@ -129,7 +129,9 @@ class SetupFrame extends RSocketFrame {
     this.header = header;
     var resumeEnable = (header.flags & 0x80) > 0;
     leaseEnable = (header.flags & 0x40) > 0;
+    // ignore: unused_local_variable
     var majorVersion = buffer.readI16();
+    // ignore: unused_local_variable
     var minorVersion = buffer.readI16();
     var keepAliveInterval = buffer.readI32();
     if (keepAliveInterval != null) {
