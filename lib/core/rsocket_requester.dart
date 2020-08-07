@@ -262,7 +262,6 @@ class RSocketRequester extends RSocket {
           responder.requestStream(requestStreamFrame.payload).listen((payload) {
             connection.write(FrameCodec.encodePayloadFrame(
                 requesterStreamId, false, payload));
-            //encodePayloadFrame(requesterStreamId, false, payload)
           }, onDone: () {
             connection.write(
                 FrameCodec.encodePayloadFrame(requesterStreamId, true, null));
