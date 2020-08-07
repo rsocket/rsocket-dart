@@ -35,7 +35,7 @@ void main() async {
 
 ### RSocket Service Proxy & Routing
 
-Please refer https://github.com/linux-china/rsocket-dart/tree/master/lib/route
+Please refer https://github.com/rsocket/rsocket-dart/tree/master/lib/route
 
 # RSocket
 
