@@ -1,5 +1,4 @@
-import 'package:rsocket/rsocket_connector.dart';
-import 'package:rsocket/payload.dart';
+import 'package:rsocket/shelf.dart';
 
 void main() async {
   var rsocket =
