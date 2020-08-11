@@ -18,7 +18,8 @@ class LoadBalanceRSocket extends RSocket {
   int poolSize = 0;
   int counter = 0;
   int lastRefreshTimeStamp = 0;
-  static final Duration healthCheckIntervalSeconds = const Duration(seconds: 15);
+  static final Duration healthCheckIntervalSeconds =
+      const Duration(seconds: 15);
   Timer healthCheckTimer;
 
   @override
@@ -78,7 +79,8 @@ class LoadBalanceRSocket extends RSocket {
     });
   }
 
-  void closeStales(Map<String, RSocket> staleRSockets) {
+  void closeStales(Map<String, RSocket> staleRSockets) async {
+    await new Future.delayed(const Duration(seconds: 15));
     staleRSockets.forEach((url, rsocket) {
       print('Close RSocket: ${url}');
       rsocket.close();
