@@ -114,7 +114,7 @@ class LoadBalanceRSocket extends RSocket {
     roundRobin = newRSockets;
     activeRSockets = newUrl2Conn;
     poolSize = roundRobin.length;
-    closeStales(staleRSockets);
+    await closeStales(staleRSockets);
   }
 
   RSocket getRandomRSocket() {
