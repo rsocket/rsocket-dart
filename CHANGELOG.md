@@ -1,3 +1,7 @@
+### 0.1.1 - 09/21/202
+
+  * Bug fix payload encode
+
 ### 0.1.0 - 08/08/2020
   * Support REQUEST_STREAM, REQUEST_RESPONSE, REQUEST_STREAM, METADATA_PUSH
   * Support TCP socket and WebSocket transportations
