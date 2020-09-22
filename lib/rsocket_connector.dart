@@ -11,28 +11,55 @@ class RSocketConnector {
   Payload payload;
   int keepAliveInterval = 20;
   int keepAliveMaxLifeTime = 90;
-  String dataMimeType = 'application/json';
-  String metadataMimeType = 'message/x.rsocket.composite-metadata.v0';
+  String _dataMimeType = 'application/json';
+  String _metadataMimeType = 'message/x.rsocket.composite-metadata.v0';
   ErrorConsumer _errorConsumer;
-  SocketAcceptor acceptor;
+  SocketAcceptor _acceptor;
 
   RSocketConnector.create();
+
+  RSocketConnector acceptor(SocketAcceptor socketAcceptor) {
+    this._acceptor = socketAcceptor;
+    return this;
+  }
+
+  RSocketConnector setupPayload(Payload payload) {
+    this.payload = payload;
+    return this;
+  }
+
+  RSocketConnector dataMimeType(String dataMimeType) {
+    _dataMimeType = dataMimeType;
+    return this;
+  }
+
+  RSocketConnector metadataMimeType(String metadataMimeType) {
+    _metadataMimeType = metadataMimeType;
+    return this;
+  }
+
+  // set the keep alive, and unit is second
+  RSocketConnector keepAlive(int interval, int maxLifeTime) {
+    this.keepAliveInterval = interval;
+    this.keepAliveMaxLifeTime = maxLifeTime;
+    return this;
+  }
 
   Future<RSocket> connect(String url) async {
     TcpChunkHandler handler = (Uint8List chunk) {};
     var connectionSetupPayload = ConnectionSetupPayload()
       ..keepAliveInterval = keepAliveInterval * 1000
       ..keepAliveMaxLifetime = keepAliveMaxLifeTime * 1000
-      ..metadataMimeType = metadataMimeType
-      ..dataMimeType = dataMimeType
+      ..metadataMimeType = _metadataMimeType
+      ..dataMimeType = _dataMimeType
       ..data = payload?.data
       ..metadata = payload?.metadata;
     return connectRSocket(url, handler).then((conn) {
       var rsocketRequester =
           RSocketRequester('requester', connectionSetupPayload, conn);
-      if (acceptor != null) {
+      if (_acceptor != null) {
         rsocketRequester.responder =
-            acceptor(connectionSetupPayload, rsocketRequester);
+            _acceptor(connectionSetupPayload, rsocketRequester);
         if (rsocketRequester.responder == null) {
           rsocketRequester.close();
           return Future.error(
