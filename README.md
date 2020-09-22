@@ -11,7 +11,7 @@ import 'package:rsocket/payload.dart';
 
 void main() async {
   var rsocket = await RSocketConnector.create().connect('tcp://127.0.0.1:42252');
-  var result = await rsocket.requestResponse(Payload.fromText('Ping', ''));
+  var result = await rsocket.requestResponse(Payload.fromText('text/plain', 'Ping'));
   print(result.getDataUtf8());
 }
 ```
@@ -26,7 +26,7 @@ import 'package:rsocket/rsocket.dart';
 void main() async {
   const listenUrl = 'tcp://0.0.0.0:42252';
   var closeable = await RSocketServer.create(requestResponseAcceptor((payload) {
-    return Future.value(Payload.fromText('text/plain', 'Hello'));
+    return Future.value(Payload.fromText('text/plain', 'Pong'));
   })).bind(listenUrl);
   print('RSocket Server started on ${listenUrl}');
 }
