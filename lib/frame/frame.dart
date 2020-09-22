@@ -8,8 +8,8 @@ import 'frame_types.dart' as frame_types;
 const int MAJOR_VERSION = 1;
 const int MINOR_VERSION = 0;
 
-Iterable<RSocketFrame> parseFrames(Uint8List chunk) sync* {
-  var byteBuffer = RSocketByteBuffer.fromUint8List(chunk);
+Iterable<RSocketFrame> parseFrames(List<int> chunk) sync* {
+  var byteBuffer = RSocketByteBuffer.fromArray(chunk);
   while (byteBuffer.isReadable()) {
     var frame = parseFrame(byteBuffer);
     if (frame != null) {
