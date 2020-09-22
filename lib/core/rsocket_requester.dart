@@ -74,6 +74,7 @@ class RSocketRequester extends RSocket {
   StreamIdSupplier streamIdSupplier;
   ConnectionSetupPayload connectionSetupPayload;
   DuplexConnection connection;
+
   //buffer for data chunk
   List<int> chunkBuffer;
 
@@ -186,15 +187,17 @@ class RSocketRequester extends RSocket {
       }
       return;
     }
-    var chunkDataLength = chunk.length - 3;
-    var bytes = chunk.sublist(0, 3);
-    var rsocketFrameLength = bytesToNumber(bytes);
-    if (rsocketFrameLength > chunkDataLength) {
-      this.chunkBuffer = chunk;
-      return;
-    }
-    for (var frame in parseFrames(chunk)) {
-      receiveFrame(frame);
+    if (chunk.length > 3) {
+      var chunkDataLength = chunk.length - 3;
+      var bytes = chunk.sublist(0, 3);
+      var rsocketFrameLength = bytesToNumber(bytes);
+      if (rsocketFrameLength > chunkDataLength) {
+        this.chunkBuffer = chunk;
+        return;
+      }
+      for (var frame in parseFrames(chunk)) {
+        receiveFrame(frame);
+      }
     }
   }
 
