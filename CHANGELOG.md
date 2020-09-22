@@ -1,3 +1,7 @@
+### 0.1.2 - 09/21/202
+
+  * Add buffer for chunks of one RSocket Frame
+
 ### 0.1.1 - 09/21/202
 
   * Bug fix payload encode
