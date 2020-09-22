@@ -457,7 +457,6 @@ class FrameCodec {
     } else {
       writeTFrameTypeAndFlags(frameBuffer, frame_types.PAYLOAD, null, flags);
     }
-    writePayload(frameBuffer, payload);
     refillFrameLength(frameBuffer);
     return frameBuffer.toUint8Array();
   }
