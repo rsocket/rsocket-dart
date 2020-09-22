@@ -7,6 +7,7 @@ import '../duplex_connection.dart';
 import '../payload.dart';
 import '../rsocket.dart';
 import '../frame/frame.dart';
+import '../io/bytes.dart';
 import 'stream_id_supplier.dart';
 
 Future<void> voidFuture() async {}
@@ -73,6 +74,8 @@ class RSocketRequester extends RSocket {
   StreamIdSupplier streamIdSupplier;
   ConnectionSetupPayload connectionSetupPayload;
   DuplexConnection connection;
+  //buffer for data chunk
+  List<int> chunkBuffer;
 
   Map<int, Subscriber> senders = {};
   RSocket responder;
@@ -170,6 +173,26 @@ class RSocketRequester extends RSocket {
   }
 
   void receiveChunk(Uint8List chunk) {
+    if (this.chunkBuffer != null) {
+      this.chunkBuffer = this.chunkBuffer + chunk;
+      var chunkDataLength = this.chunkBuffer.length - 3;
+      var bytes = this.chunkBuffer.sublist(0, 3);
+      var rsocketFrameLength = bytesToNumber(bytes);
+      if (rsocketFrameLength <= chunkDataLength) {
+        for (var frame in parseFrames(this.chunkBuffer)) {
+          receiveFrame(frame);
+        }
+        this.chunkBuffer = null;
+      }
+      return;
+    }
+    var chunkDataLength = chunk.length - 3;
+    var bytes = chunk.sublist(0, 3);
+    var rsocketFrameLength = bytesToNumber(bytes);
+    if (rsocketFrameLength > chunkDataLength) {
+      this.chunkBuffer = chunk;
+      return;
+    }
     for (var frame in parseFrames(chunk)) {
       receiveFrame(frame);
     }
