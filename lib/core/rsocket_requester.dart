@@ -45,7 +45,10 @@ class CompleterSubscriber implements Subscriber {
 }
 
 class StreamSubscriber implements Subscriber {
-  StreamController controller = StreamController();
+  final StreamController controller;
+
+  StreamSubscriber({FutureOr<void> onCancel() = null})
+      : controller = StreamController(onCancel: onCancel);
 
   @override
   void onNext(Payload value) {
@@ -123,7 +126,10 @@ class RSocketRequester extends RSocket {
       var streamId = streamIdSupplier.nextStreamId(senders);
       connection.write(FrameCodec.encodeRequestStreamFrame(
           streamId, MAX_REQUEST_N_SIZE, payload));
-      var streamSubscriber = StreamSubscriber();
+      var streamSubscriber = StreamSubscriber(onCancel: () {
+        connection.write(FrameCodec.encodeCancelFrame(streamId));
+        senders.remove(streamId);
+      });
       senders[streamId] = streamSubscriber;
       return streamSubscriber.payloadStream();
     };
