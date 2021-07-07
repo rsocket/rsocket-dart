@@ -7,8 +7,8 @@ import 'io/bytes.dart';
 
 abstract class DuplexConnection implements Closeable, Availability {
   double _availability = 1.0;
-  TcpChunkHandler receiveHandler;
-  CloseHandler closeHandler;
+  TcpChunkHandler? receiveHandler;
+  CloseHandler? closeHandler;
 
   void init();
 
@@ -32,7 +32,7 @@ class TcpDuplexConnection extends DuplexConnection {
   @override
   void init() {
     socket.listen((data) {
-      receiveHandler(data);
+      receiveHandler!(data);
     }, onDone: () {
       close();
     }, onError: (e) {
@@ -49,7 +49,7 @@ class TcpDuplexConnection extends DuplexConnection {
         socket.close();
       }
       if (closeHandler != null) {
-        closeHandler();
+        closeHandler!();
       }
     }
   }
@@ -71,7 +71,7 @@ class WebSocketDuplexConnection extends DuplexConnection {
     webSocket.listen((message) {
       var data = message as List<int>;
       var frameLenBytes = i24ToBytes(data.length);
-      receiveHandler(Uint8List.fromList(frameLenBytes + data));
+      receiveHandler!(Uint8List.fromList(frameLenBytes + data));
     }, onDone: () {
       close();
     }, onError: (e) {
@@ -88,7 +88,7 @@ class WebSocketDuplexConnection extends DuplexConnection {
         webSocket.close();
       }
       if (closeHandler != null) {
-        closeHandler();
+        closeHandler!();
       }
     }
   }

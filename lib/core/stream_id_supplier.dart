@@ -1,7 +1,7 @@
 class StreamIdSupplier {
   static int MASK = 0x7FFFFFFF;
-  int streamId;
-  int initialValue;
+  int streamId = 0;
+  late int initialValue;
 
   StreamIdSupplier();
 
@@ -18,12 +18,12 @@ class StreamIdSupplier {
     return StreamIdSupplier.streamId(0);
   }
 
-  int nextStreamId(Map<int, dynamic> streamIds) {
+  int? nextStreamId(Map<int, dynamic> streamIds) {
     var nextStreamId;
     do {
       streamId += 2;
       //Dart int range -2**53 to 2**53
-      if (streamId > StreamIdSupplier.MASK) {
+      if (streamId! > StreamIdSupplier.MASK) {
         streamId = initialValue + 2;
       }
       nextStreamId = streamId;

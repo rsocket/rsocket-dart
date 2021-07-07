@@ -1,10 +1,10 @@
 import 'payload.dart';
 
-typedef RequestResponse = Future<Payload> Function(Payload payload);
-typedef FireAndForget = Future<void> Function(Payload payload);
-typedef RequestStream = Stream<Payload> Function(Payload payload);
+typedef RequestResponse = Future<Payload> Function(Payload? payload);
+typedef FireAndForget = Future<void> Function(Payload? payload);
+typedef RequestStream = Stream<Payload?> Function(Payload? payload);
 typedef RequestChannel = Stream<Payload> Function(Stream<Payload> payloads);
-typedef MetadataPush = Future<void> Function(Payload payload);
+typedef MetadataPush = Future<void> Function(Payload? payload);
 typedef RSocketClose = void Function();
 
 abstract class Closeable {
@@ -16,16 +16,16 @@ abstract class Availability {
 }
 
 class RSocket implements Closeable, Availability {
-  RequestResponse requestResponse =
-      (Payload payload) => Future.error(Exception('Unsupported'));
-  FireAndForget fireAndForget =
-      (Payload payload) => Future.error(Exception('Unsupported'));
-  RequestStream requestStream =
-      (Payload payload) => Stream.error(Exception('Unsupported'));
-  RequestChannel requestChannel =
+  RequestResponse? requestResponse =
+      (Payload? payload) => Future.error(Exception('Unsupported'));
+  FireAndForget? fireAndForget =
+      (Payload? payload) => Future.error(Exception('Unsupported'));
+  RequestStream? requestStream =
+      (Payload? payload) => Stream.error(Exception('Unsupported'));
+  RequestChannel? requestChannel =
       (Stream<Payload> payloads) => Stream.error(Exception('Unsupported'));
-  MetadataPush metadataPush =
-      (Payload payload) => Future.error(Exception('Unsupported'));
+  MetadataPush? metadataPush =
+      (Payload? payload) => Future.error(Exception('Unsupported'));
 
   @override
   void close() {}
@@ -76,9 +76,9 @@ SocketAcceptor requestStreamAcceptor(RequestStream requestStream) {
 }
 
 class RSocketService {
-  final String group;
+  final String? group;
   final String name;
-  final String version;
+  final String? version;
 
   const RSocketService(this.name, [this.version, this.group]);
 }

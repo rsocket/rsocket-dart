@@ -5,8 +5,9 @@ homepage: https://github.com/rsocket/rsocket-dart
 repository: https://github.com/rsocket/rsocket-dart.git
 issue_tracker: https://github.com/rsocket/rsocket-dart/issues
 environment:
-  sdk: '>=2.7.0 <3.0.0'
+  sdk: '>=2.12.0 <3.0.0'
 dependencies:
   rxdart: ^0.24.1
+  collection: ^1.15.0-nullsafety.4
 dev_dependencies:
   test: ^1.6.0

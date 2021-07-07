@@ -13,7 +13,7 @@ class UserService extends RSocketServiceStub {
 
 void main() {
   test('proxy_call', () {
-    RSocketCallHandler handler = (RSocketService rsocketServiceAnnotation,
+    RSocketCallHandler handler = (RSocketService? rsocketServiceAnnotation,
         String methodName, List<dynamic> params) {
       return 'rsocket';
     };

@@ -18,9 +18,9 @@ Iterable<RSocketFrame> parseFrames(List<int> chunk) sync* {
   }
 }
 
-RSocketFrame parseFrame(RSocketByteBuffer byteBuffer) {
+RSocketFrame? parseFrame(RSocketByteBuffer byteBuffer) {
   var header = RSocketHeader.fromBuffer(byteBuffer);
-  RSocketFrame frame;
+  RSocketFrame? frame;
   switch (header.type) {
     case frame_types.SETUP:
       frame = SetupFrame.fromBuffer(header, byteBuffer);
@@ -64,7 +64,7 @@ RSocketFrame parseFrame(RSocketByteBuffer byteBuffer) {
   return frame;
 }
 
-RSocketFrame parseWebSocketFrame(List<int> data) {
+RSocketFrame? parseWebSocketFrame(List<int> data) {
   var frameLength = data.length;
   var byteBuffer = RSocketByteBuffer.fromArray(data)
     ..insertI24(frameLength)
@@ -111,16 +111,16 @@ class RSocketHeader {
 }
 
 class RSocketFrame {
-  RSocketHeader header;
+  late RSocketHeader header;
 }
 
 class SetupFrame extends RSocketFrame {
-  Payload payload;
+  Payload? payload;
   String metadataMimeType = 'message/x.rsocket.composite-metadata.v0';
   String dataMimeType = 'application/json';
   int keepAliveInterval = 20;
   int keepAliveMaxLifetime = 90;
-  String resumeToken;
+  String? resumeToken;
   bool leaseEnable = false;
 
   SetupFrame();
@@ -191,7 +191,7 @@ class LeaseFrame extends RSocketFrame {
 
 class KeepAliveFrame extends RSocketFrame {
   int lastReceivedPosition = 0;
-  Payload payload;
+  Payload? payload;
   bool respond = false;
 
   KeepAliveFrame();
@@ -210,7 +210,7 @@ class KeepAliveFrame extends RSocketFrame {
 }
 
 class ErrorFrame extends RSocketFrame {
-  int code;
+  int? code;
   String message = '';
 
   ErrorFrame();
@@ -237,7 +237,7 @@ class CancelFrame extends RSocketFrame {
 }
 
 class RequestResponseFrame extends RSocketFrame {
-  Payload payload;
+  Payload? payload;
 
   RequestResponseFrame();
 
@@ -251,7 +251,7 @@ class RequestResponseFrame extends RSocketFrame {
 }
 
 class RequestFNFFrame extends RSocketFrame {
-  Payload payload;
+  Payload? payload;
 
   RequestFNFFrame();
 
@@ -264,8 +264,8 @@ class RequestFNFFrame extends RSocketFrame {
 }
 
 class RequestStreamFrame extends RSocketFrame {
-  int initialRequestN;
-  Payload payload;
+  int? initialRequestN;
+  Payload? payload;
 
   RequestStreamFrame();
 
@@ -280,8 +280,8 @@ class RequestStreamFrame extends RSocketFrame {
 }
 
 class RequestChannelFrame extends RSocketFrame {
-  int initialRequestN;
-  Payload payload;
+  int? initialRequestN;
+  Payload? payload;
 
   RequestChannelFrame();
 
@@ -296,7 +296,7 @@ class RequestChannelFrame extends RSocketFrame {
 }
 
 class RequestNFrame extends RSocketFrame {
-  int initialRequestN;
+  int? initialRequestN;
 
   RequestNFrame();
 
@@ -307,7 +307,7 @@ class RequestNFrame extends RSocketFrame {
 }
 
 class MetadataPushFrame extends RSocketFrame {
-  Payload payload;
+  Payload? payload;
 
   MetadataPushFrame();
 
@@ -315,13 +315,13 @@ class MetadataPushFrame extends RSocketFrame {
     this.header = header;
     if (header != null && header.frameLength > 0) {
       var metadataBytes = buffer.readBytes(header.frameLength - 6);
-      payload = Payload()..metadata = metadataBytes;
+      payload = Payload()..metadata = metadataBytes as Uint8List?;
     }
   }
 }
 
 class PayloadFrame extends RSocketFrame {
-  Payload payload;
+  Payload? payload;
   bool completed = false;
 
   PayloadFrame();
@@ -341,7 +341,7 @@ class FrameCodec {
       int keepAliveMaxLifetime,
       String metadataMimeType,
       String dataMimeType,
-      Payload setupPayload) {
+      Payload? setupPayload) {
     var frameBuffer = RSocketByteBuffer();
     frameBuffer.writeI24(0); // frame length
     frameBuffer.writeI32(0); //stream id
@@ -408,7 +408,7 @@ class FrameCodec {
     frameBuffer.writeI32(streamId); //stream id
     frameBuffer.writeI8((frame_types.METADATA_PUSH << 2) | 0x01);
     frameBuffer.writeI8(0);
-    frameBuffer.writeBytes(payload.metadata);
+    frameBuffer.writeBytes(payload.metadata!);
     refillFrameLength(frameBuffer);
     return frameBuffer.toUint8Array();
   }
@@ -440,7 +440,7 @@ class FrameCodec {
   }
 
   static Uint8List encodePayloadFrame(
-      int streamId, bool completed, Payload payload) {
+      int streamId, bool completed, Payload? payload) {
     var frameBuffer = RSocketByteBuffer();
     frameBuffer.writeI24(0); // frame length
     frameBuffer.writeI32(streamId); //stream id
@@ -494,7 +494,7 @@ Payload decodePayload(
 }
 
 void writeTFrameTypeAndFlags(RSocketByteBuffer frameBuffer, int frameType,
-    Uint8List metadata, int flags) {
+    Uint8List? metadata, int flags) {
   if (metadata != null) {
     frameBuffer.writeI8(frameType << 2 | 1);
   } else {
@@ -503,14 +503,14 @@ void writeTFrameTypeAndFlags(RSocketByteBuffer frameBuffer, int frameType,
   frameBuffer.writeI8(flags);
 }
 
-void writePayload(RSocketByteBuffer frameBuffer, Payload payload) {
+void writePayload(RSocketByteBuffer frameBuffer, Payload? payload) {
   if (payload != null) {
     if (payload.metadata != null) {
-      frameBuffer.writeI24(payload.metadata.length);
-      frameBuffer.writeUint8List(payload.metadata);
+      frameBuffer.writeI24(payload.metadata!.length);
+      frameBuffer.writeUint8List(payload.metadata!);
     }
     if (payload.data != null) {
-      frameBuffer.writeUint8List(payload.data);
+      frameBuffer.writeUint8List(payload.data!);
     }
   }
 }

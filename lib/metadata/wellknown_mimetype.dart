@@ -3,15 +3,15 @@ class WellKnownMimeType {
     return MIME_TYPES.containsKey(id);
   }
 
-  static bool isWellKnownType(String mimeType) {
+  static bool isWellKnownType(String? mimeType) {
     return MIME_TYPES.containsKey(mimeType);
   }
 
-  static String getMimeType(int id) {
+  static String? getMimeType(int id) {
     return MIME_TYPES[id];
   }
 
-  static int getMimeTypeId(String mimeType) {
+  static int? getMimeTypeId(String? mimeType) {
     return MIME_TYPES[mimeType];
   }
 

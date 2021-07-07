@@ -24,7 +24,7 @@ class CompositeMetadata extends Iterable<MetadataEntry> {
   void addMetadata(MetadataEntry metadata) {
     if (WellKnownMimeType.isWellKnownType(metadata.mimeType)) {
       addWellKnownMimeType(
-          WellKnownMimeType.getMimeTypeId(metadata.mimeType), metadata.content);
+          WellKnownMimeType.getMimeTypeId(metadata.mimeType)!, metadata.content!);
     } else {
       addExplicitMimeType(metadata.mimeType, metadata.content);
     }
@@ -36,14 +36,14 @@ class CompositeMetadata extends Iterable<MetadataEntry> {
     buffer.writeUint8List(content);
   }
 
-  void addExplicitMimeType(String mimeType, Uint8List content) {
+  void addExplicitMimeType(String? mimeType, Uint8List? content) {
     if (WellKnownMimeType.isWellKnownType(mimeType)) {
-      addWellKnownMimeType(WellKnownMimeType.getMimeTypeId(mimeType), content);
+      addWellKnownMimeType(WellKnownMimeType.getMimeTypeId(mimeType)!, content!);
     } else {
-      var mimeTypeArray = utf8.encode(mimeType);
+      var mimeTypeArray = utf8.encode(mimeType!);
       buffer.writeI8(mimeTypeArray.length);
       buffer.writeBytes(mimeTypeArray);
-      buffer.writeI24(content.length);
+      buffer.writeI24(content!.length);
       buffer.writeUint8List(content);
     }
   }
@@ -88,9 +88,9 @@ class CompositeMetadata extends Iterable<MetadataEntry> {
 }
 
 class MetadataEntry {
-  Uint8List content;
-  String mimeType;
-  int id;
+  Uint8List? content;
+  String? mimeType;
+  int? id;
 
   MetadataEntry();
 
@@ -98,9 +98,9 @@ class MetadataEntry {
 }
 
 class TaggingMetadata extends MetadataEntry {
-  List<String> tags;
+  late List<String> tags;
 
-  TaggingMetadata(String mimeType, List<String> tags) {
+  TaggingMetadata(String? mimeType, List<String> tags) {
     this.mimeType = mimeType;
     this.tags = tags;
     var byteBuffer = RSocketByteBuffer();
@@ -115,7 +115,7 @@ class TaggingMetadata extends MetadataEntry {
   }
 
   static TaggingMetadata fromEntry(MetadataEntry entry) {
-    var buffer = RSocketByteBuffer.fromUint8List(entry.content);
+    var buffer = RSocketByteBuffer.fromUint8List(entry.content!);
     var tags = <String>[];
     while (buffer.isReadable()) {
       var tagLength = buffer.readI8();
@@ -131,8 +131,8 @@ class TaggingMetadata extends MetadataEntry {
 }
 
 class RoutingMetadata extends TaggingMetadata {
-  String routingKey;
-  List<String> extraTags;
+  String? routingKey;
+  List<String>? extraTags;
 
   RoutingMetadata(String routingKey, List<String> extraTags)
       : super('message/x.rsocket.routing.v0', [routingKey, ...extraTags]) {
@@ -154,20 +154,20 @@ class RoutingMetadata extends TaggingMetadata {
 }
 
 class AuthMetadata extends MetadataEntry {
-  Uint8List authData;
-  int authTypeId;
+  late Uint8List authData;
+  late int authTypeId;
 
   AuthMetadata(int authTypeId, Uint8List authData) {
     mimeType = 'message/x.rsocket.authentication.v0';
     this.authTypeId = authTypeId;
     this.authData = authData;
     content = Uint8List(this.authData.length + 1);
-    content[0] = 0x80 | this.authTypeId;
-    content.setRange(1, content.length, authData);
+    content![0] = 0x80 | this.authTypeId;
+    content!.setRange(1, content!.length, authData);
   }
 
   static AuthMetadata jwt(String jwtToken) {
-    return AuthMetadata(0x01, utf8.encode(jwtToken));
+    return AuthMetadata(0x01, utf8.encode(jwtToken) as Uint8List);
   }
 
   static AuthMetadata simple(String username, String password) {
@@ -182,25 +182,25 @@ class AuthMetadata extends MetadataEntry {
 }
 
 class MessageMimeTypeMetadata extends MetadataEntry {
-  String dataMimeType;
+  String? dataMimeType;
 
   MessageMimeTypeMetadata(String dataMimeType) {
     mimeType = 'message/x.rsocket.mime-type.v0';
     this.dataMimeType = dataMimeType;
     if (WellKnownMimeType.isWellKnownType(dataMimeType)) {
       content = Uint8List(1);
-      content[0] = 0x80 | WellKnownMimeType.getMimeTypeId(this.dataMimeType);
+      content![0] = 0x80 | WellKnownMimeType.getMimeTypeId(this.dataMimeType)!;
     } else {
-      var dataMimeTypeU8Array = utf8.encode(this.dataMimeType);
+      var dataMimeTypeU8Array = utf8.encode(this.dataMimeType!);
       content = Uint8List(1 + dataMimeTypeU8Array.length);
-      content[0] = dataMimeTypeU8Array.length;
-      content.setRange(1, content.length, dataMimeTypeU8Array);
+      content![0] = dataMimeTypeU8Array.length;
+      content!.setRange(1, content!.length, dataMimeTypeU8Array);
     }
   }
 }
 
 class MessageAcceptMimeTypesMetadata extends MetadataEntry {
-  List<String> acceptMimeTypes;
+  List<String>? acceptMimeTypes;
 
   MessageAcceptMimeTypesMetadata(List<String> acceptMimeTypes) {
     mimeType = 'message/x.rsocket.accept-mime-types.v0';
@@ -208,7 +208,7 @@ class MessageAcceptMimeTypesMetadata extends MetadataEntry {
     var buffer = RSocketByteBuffer();
     acceptMimeTypes.forEach((acceptMimeType) {
       if (WellKnownMimeType.isWellKnownType(acceptMimeType)) {
-        buffer.writeI8(0x80 | WellKnownMimeType.getMimeTypeId(acceptMimeType));
+        buffer.writeI8(0x80 | WellKnownMimeType.getMimeTypeId(acceptMimeType)!);
       } else {
         var acceptMimeTypeU8Array = utf8.encode(acceptMimeType);
         buffer.writeI8(acceptMimeTypeU8Array.length);

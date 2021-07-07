@@ -1,5 +1,5 @@
 class RSocketException implements Exception {
-  final int code;
+  final int? code;
   final String message;
 
   RSocketException(this.code, this.message);
