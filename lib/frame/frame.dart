@@ -472,6 +472,16 @@ class FrameCodec {
     refillFrameLength(frameBuffer);
     return frameBuffer.toUint8Array();
   }
+
+  static Uint8List encodeCancelFrame(int streamId) {
+    var frameBuffer = RSocketByteBuffer();
+    frameBuffer.writeI24(0); // frame length
+    frameBuffer.writeI32(streamId); //stream id
+    frameBuffer.writeI8(frame_types.CANCEL << 2);
+    frameBuffer.writeI8(0);
+    refillFrameLength(frameBuffer);
+    return frameBuffer.toUint8Array();
+  }
 }
 
 Payload decodePayload(
