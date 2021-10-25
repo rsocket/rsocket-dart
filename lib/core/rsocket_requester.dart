@@ -15,7 +15,7 @@ Future<void> voidFuture() async {}
 const MAX_REQUEST_N_SIZE = 0x7FFFFFFF;
 
 abstract class Subscriber {
-  void onNext(Payload value);
+  void onNext(Payload? value);
 
   void onError(dynamic error);
 
@@ -24,12 +24,12 @@ abstract class Subscriber {
 
 class CompleterSubscriber implements Subscriber {
   Completer completer;
-  Payload payload;
+  Payload? payload;
 
   CompleterSubscriber(this.completer);
 
   @override
-  void onNext(Payload payload) {
+  void onNext(Payload? payload) {
     this.payload = payload;
   }
 
@@ -47,11 +47,11 @@ class CompleterSubscriber implements Subscriber {
 class StreamSubscriber implements Subscriber {
   final StreamController controller;
 
-  StreamSubscriber({FutureOr<void> onCancel() = null})
+  StreamSubscriber({FutureOr<void> onCancel()? = null})
       : controller = StreamController(onCancel: onCancel);
 
   @override
-  void onNext(Payload value) {
+  void onNext(Payload? value) {
     controller.add(value);
   }
 
@@ -65,26 +65,26 @@ class StreamSubscriber implements Subscriber {
     controller.close().then((value) => {});
   }
 
-  Stream<Payload> payloadStream() {
-    return controller.stream.map((item) => item as Payload);
+  Stream<Payload?> payloadStream() {
+    return controller.stream.map((item) => item as Payload?);
   }
 }
 
 class RSocketRequester extends RSocket {
   bool closed = false;
   double _availability = 1.0;
-  Timer keepAliveTimer;
-  StreamIdSupplier streamIdSupplier;
-  ConnectionSetupPayload connectionSetupPayload;
-  DuplexConnection connection;
+  Timer? keepAliveTimer;
+  late StreamIdSupplier streamIdSupplier;
+  ConnectionSetupPayload? connectionSetupPayload;
+  late DuplexConnection connection;
 
   //buffer for data chunk
-  List<int> chunkBuffer;
+  List<int>? chunkBuffer;
 
   Map<int, Subscriber> senders = {};
-  RSocket responder;
+  RSocket? responder;
   String mode = 'requester';
-  ErrorConsumer errorConsumer;
+  ErrorConsumer? errorConsumer;
 
   RSocketRequester(String mode, ConnectionSetupPayload connectionSetupPayload,
       DuplexConnection connection) {
@@ -109,23 +109,23 @@ class RSocketRequester extends RSocket {
     //RSocket requestResponse
     requestResponse = (payload) {
       var completer = Completer<Payload>();
-      var streamId = streamIdSupplier.nextStreamId(senders);
+      var streamId = streamIdSupplier.nextStreamId(senders)!;
       connection
-          .write(FrameCodec.encodeRequestResponseFrame(streamId, payload));
+          .write(FrameCodec.encodeRequestResponseFrame(streamId, payload!));
       senders[streamId] = CompleterSubscriber(completer);
       return completer.future;
     };
     //RSocket fireAndForget
     fireAndForget = (payload) {
-      var streamId = streamIdSupplier.nextStreamId(senders);
-      connection.write(FrameCodec.encodeFireAndForgetFrame(streamId, payload));
+      var streamId = streamIdSupplier.nextStreamId(senders)!;
+      connection.write(FrameCodec.encodeFireAndForgetFrame(streamId, payload!));
       return Future.value(() {});
     };
     //RSocket requestStream
     requestStream = (payload) {
-      var streamId = streamIdSupplier.nextStreamId(senders);
+      var streamId = streamIdSupplier.nextStreamId(senders)!;
       connection.write(FrameCodec.encodeRequestStreamFrame(
-          streamId, MAX_REQUEST_N_SIZE, payload));
+          streamId, MAX_REQUEST_N_SIZE, payload!));
       var streamSubscriber = StreamSubscriber(onCancel: () {
         connection.write(FrameCodec.encodeCancelFrame(streamId));
         senders.remove(streamId);
@@ -135,7 +135,7 @@ class RSocketRequester extends RSocket {
     };
     //RSocket metadataPush
     metadataPush = (payload) {
-      connection.write(FrameCodec.encodeMetadataFrame(0, payload));
+      connection.write(FrameCodec.encodeMetadataFrame(0, payload!));
       return Future.value(() {});
     };
     //Rsocket Channel
@@ -153,7 +153,7 @@ class RSocketRequester extends RSocket {
     connection.write(setupPayloadFrame());
     if (mode == 'requester') {
       keepAliveTimer = Timer.periodic(
-          Duration(seconds: connectionSetupPayload.keepAliveInterval),
+          Duration(seconds: connectionSetupPayload!.keepAliveInterval),
           (Timer t) {
         if (!closed) {
           connection.write(FrameCodec.encodeKeepAlive(false, 0));
@@ -181,12 +181,12 @@ class RSocketRequester extends RSocket {
 
   void receiveChunk(Uint8List chunk) {
     if (this.chunkBuffer != null) {
-      this.chunkBuffer = this.chunkBuffer + chunk;
-      var chunkDataLength = this.chunkBuffer.length - 3;
-      var bytes = this.chunkBuffer.sublist(0, 3);
-      var rsocketFrameLength = bytesToNumber(bytes);
+      this.chunkBuffer = this.chunkBuffer! + chunk;
+      var chunkDataLength = this.chunkBuffer!.length - 3;
+      var bytes = this.chunkBuffer!.sublist(0, 3);
+      var rsocketFrameLength = bytesToNumber(bytes)!;
       if (rsocketFrameLength <= chunkDataLength) {
-        for (var frame in parseFrames(this.chunkBuffer)) {
+        for (var frame in parseFrames(this.chunkBuffer!)) {
           receiveFrame(frame);
         }
         this.chunkBuffer = null;
@@ -196,7 +196,7 @@ class RSocketRequester extends RSocket {
     if (chunk.length > 3) {
       var chunkDataLength = chunk.length - 3;
       var bytes = chunk.sublist(0, 3);
-      var rsocketFrameLength = bytesToNumber(bytes);
+      var rsocketFrameLength = bytesToNumber(bytes)!;
       if (rsocketFrameLength > chunkDataLength) {
         this.chunkBuffer = chunk;
         return;
@@ -219,12 +219,12 @@ class RSocketRequester extends RSocket {
           if (payloadFrame.completed) {
             senders.remove(streamId);
             if (payload?.data != null) {
-              subscriber.onNext(payload);
+              subscriber!.onNext(payload);
             }
-            subscriber.onComplete();
+            subscriber!.onComplete();
           } else {
             if (payload?.data != null) {
-              subscriber.onNext(payload);
+              subscriber!.onNext(payload);
             }
           }
         }
@@ -241,10 +241,10 @@ class RSocketRequester extends RSocket {
         var streamId = header.streamId;
         var error = RSocketException(errorFrame.code, errorFrame.message);
         if (streamId == 0 && errorConsumer != null) {
-          errorConsumer(error);
+          errorConsumer!(error);
         } else {
           if (senders.containsKey(streamId)) {
-            var subscriber = senders[streamId];
+            var subscriber = senders[streamId]!;
             senders.remove(streamId);
             subscriber.onError(error);
           }
@@ -261,37 +261,37 @@ class RSocketRequester extends RSocket {
       case frame_types.REQUEST_RESPONSE:
         var requestResponseFrame = frame as RequestResponseFrame;
         if (responder != null && requestResponseFrame.payload != null) {
-          responder
-              .requestResponse(requestResponseFrame.payload)
+          responder!.requestResponse!(requestResponseFrame.payload)
               .then((payload) {
             connection.write(
                 FrameCodec.encodePayloadFrame(header.streamId, true, payload));
           }).catchError((error) {
             var rsocketError = convertToRSocketException(error);
             connection.write(FrameCodec.encodeErrorFrame(
-                header.streamId, rsocketError.code, rsocketError.message));
+                header.streamId, rsocketError.code!, rsocketError.message));
           });
         }
         break;
       case frame_types.REQUEST_FNF:
         var fireAndForgetFrame = frame as RequestFNFFrame;
         if (responder != null && fireAndForgetFrame.payload != null) {
-          responder
-              .fireAndForget(fireAndForgetFrame.payload)
+          responder!.fireAndForget!(fireAndForgetFrame.payload)
               .then((value) => {});
         }
         break;
       case frame_types.METADATA_PUSH:
         var metadataPushFrame = frame as MetadataPushFrame;
         if (responder != null && metadataPushFrame.payload != null) {
-          responder.metadataPush(metadataPushFrame.payload).then((value) => {});
+          responder!.metadataPush!(metadataPushFrame.payload)
+              .then((value) => {});
         }
         break;
       case frame_types.REQUEST_STREAM:
         var requestStreamFrame = frame as RequestStreamFrame;
         var requesterStreamId = header.streamId;
         if (responder != null && requestStreamFrame.payload != null) {
-          responder.requestStream(requestStreamFrame.payload).listen((payload) {
+          responder!.requestStream!(requestStreamFrame.payload).listen(
+              (payload) {
             connection.write(FrameCodec.encodePayloadFrame(
                 requesterStreamId, false, payload));
           }, onDone: () {
@@ -301,7 +301,7 @@ class RSocketRequester extends RSocket {
             if (error is RSocketException) {
               var e = error;
               connection.write(FrameCodec.encodeErrorFrame(
-                  requesterStreamId, e.code, e.message));
+                  requesterStreamId, e.code!, e.message));
             } else {
               connection.write(FrameCodec.encodeErrorFrame(requesterStreamId,
                   RSocketErrorCode.APPLICATION_ERROR, error.toString()));
@@ -315,10 +315,10 @@ class RSocketRequester extends RSocket {
 
   Uint8List setupPayloadFrame() {
     return FrameCodec.encodeSetupFrame(
-        connectionSetupPayload.keepAliveInterval,
-        connectionSetupPayload.keepAliveMaxLifetime,
-        connectionSetupPayload.metadataMimeType,
-        connectionSetupPayload.dataMimeType,
+        connectionSetupPayload!.keepAliveInterval,
+        connectionSetupPayload!.keepAliveMaxLifetime,
+        connectionSetupPayload!.metadataMimeType,
+        connectionSetupPayload!.dataMimeType,
         connectionSetupPayload);
   }
 }

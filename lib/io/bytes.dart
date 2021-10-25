@@ -20,7 +20,7 @@ class RSocketByteBuffer {
     return buffer;
   }
 
-  int readI8() {
+  int? readI8() {
     if (_readerIndex < _capacity) {
       var value = _data[_readerIndex];
       _readerIndex += 1;
@@ -29,19 +29,19 @@ class RSocketByteBuffer {
     return null;
   }
 
-  int readI16() {
+  int? readI16() {
     return bytesToNumber(readBytes(2));
   }
 
-  int readI24() {
+  int? readI24() {
     return bytesToNumber(readBytes(3));
   }
 
-  int readI32() {
+  int? readI32() {
     return bytesToNumber(readBytes(4));
   }
 
-  int readI64() {
+  int? readI64() {
     return bytesToNumber(readBytes(8));
   }
 
@@ -172,7 +172,7 @@ Uint8List i16ToBytes(int value) {
   return Uint8List(2)..buffer.asByteData().setUint16(0, value, Endian.big);
 }
 
-int bytesToNumber(List<int> data) {
+int? bytesToNumber(List<int> data) {
   if (data.isNotEmpty) {
     var value = 0;
     data.forEach((element) => value = (value * 256) + element);

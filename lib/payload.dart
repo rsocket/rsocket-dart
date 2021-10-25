@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 class Payload {
-  Uint8List metadata;
-  Uint8List data;
+  Uint8List? metadata;
+  Uint8List? data;
 
   Payload();
 
@@ -13,16 +13,16 @@ class Payload {
       : metadata = Uint8List.fromList(utf8.encode(metadata)),
         data = Uint8List.fromList(utf8.encode(data));
 
-  String getMetadataUtf8() {
+  String? getMetadataUtf8() {
     if (metadata != null) {
-      return utf8.decode(metadata);
+      return utf8.decode(metadata!);
     }
     return null;
   }
 
-  String getDataUtf8() {
+  String? getDataUtf8() {
     if (data != null) {
-      return utf8.decode(data);
+      return utf8.decode(data!);
     }
     return null;
   }

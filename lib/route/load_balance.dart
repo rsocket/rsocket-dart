@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../payload.dart';
 import '../rsocket.dart';
 import '../rsocket_connector.dart';
 
@@ -20,43 +21,43 @@ class LoadBalanceRSocket extends RSocket {
   int lastRefreshTimeStamp = 0;
   static final Duration healthCheckIntervalSeconds =
       const Duration(seconds: 15);
-  Timer healthCheckTimer;
+  Timer? healthCheckTimer;
 
   @override
-  var fireAndForget;
+  Future<void> Function(Payload?)? fireAndForget;
 
   @override
-  var metadataPush;
+  Future<void> Function(Payload?)? metadataPush;
 
   @override
-  var requestChannel;
+  Stream<Payload> Function(Stream<Payload>)? requestChannel;
 
   @override
-  var requestResponse;
+  Future<Payload> Function(Payload?)? requestResponse;
 
   @override
-  var requestStream;
+  Stream<Payload?> Function(Payload?)? requestStream;
 
   LoadBalanceRSocket() {
     this
       ..fireAndForget = (payload) {
-        return getRandomRSocket()?.fireAndForget(payload) ??
+        return getRandomRSocket()?.fireAndForget!(payload) ??
             Future.error(Exception('No available connection'));
       }
       ..requestResponse = (payload) {
-        return getRandomRSocket()?.requestResponse(payload) ??
+        return getRandomRSocket()?.requestResponse!(payload) ??
             Future.error(Exception('No available connection'));
       }
       ..requestStream = (payload) {
-        return getRandomRSocket()?.requestStream(payload) ??
+        return getRandomRSocket()?.requestStream!(payload) ??
             Stream.error(Exception('No available connection'));
       }
       ..requestChannel = (payloads) {
-        return getRandomRSocket()?.requestChannel(payloads) ??
+        return getRandomRSocket()?.requestChannel!(payloads) ??
             Stream.error(Exception('No available connection'));
       }
       ..metadataPush = (payload) {
-        return getRandomRSocket()?.metadataPush(payload) ??
+        return getRandomRSocket()?.metadataPush!(payload) ??
             Future.error(Exception('No available connection'));
       };
     healthCheckTimer = Timer.periodic(
@@ -71,7 +72,7 @@ class LoadBalanceRSocket extends RSocket {
   @override
   void close() {
     if (healthCheckTimer != null) {
-      healthCheckTimer.cancel();
+      healthCheckTimer!.cancel();
     }
     activeRSockets.forEach((url, rsocket) {
       print('Close RSocket: ${url}');
@@ -79,7 +80,7 @@ class LoadBalanceRSocket extends RSocket {
     });
   }
 
-  void closeStales(Map<String, RSocket> staleRSockets) async {
+  Future<void> closeStales(Map<String, RSocket> staleRSockets) async {
     await new Future.delayed(const Duration(seconds: 15));
     staleRSockets.forEach((url, rsocket) {
       print('Close RSocket: ${url}');
@@ -117,7 +118,7 @@ class LoadBalanceRSocket extends RSocket {
     await closeStales(staleRSockets);
   }
 
-  RSocket getRandomRSocket() {
+  RSocket? getRandomRSocket() {
     if (poolSize == 0) {
       return null;
     }

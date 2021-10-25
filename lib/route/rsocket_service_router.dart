@@ -21,11 +21,11 @@ class RSocketServiceRouter {
   dynamic invokeService(String serviceName, String method, dynamic params) {
     var instanceMirror = instanceMirrors[serviceName];
     if (params == null) {
-      return instanceMirror.invoke(Symbol(method), []).reflectee;
+      return instanceMirror!.invoke(Symbol(method), []).reflectee;
     } else if (params is List) {
-      return instanceMirror.invoke(Symbol(method), params).reflectee;
+      return instanceMirror!.invoke(Symbol(method), params).reflectee;
     } else {
-      return instanceMirror.invoke(Symbol(method), [params]).reflectee;
+      return instanceMirror!.invoke(Symbol(method), [params]).reflectee;
     }
   }
 }

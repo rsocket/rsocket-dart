@@ -8,11 +8,11 @@ import '../payload.dart';
 import '../rsocket.dart';
 
 class BaseResponder {
-  SocketAcceptor socketAcceptor;
-  Uri uri;
+  late SocketAcceptor socketAcceptor;
+  late Uri uri;
 
   Future<void> receiveConnection(DuplexConnection duplexConn) async {
-    RSocketRequester rsocketRequester;
+    RSocketRequester? rsocketRequester;
     duplexConn.receiveHandler = (chunk) {
       for (var frame in parseFrames(chunk)) {
         var header = frame.header;
@@ -45,7 +45,7 @@ class BaseResponder {
 }
 
 class TcpRSocketResponder extends BaseResponder implements Closeable {
-  ServerSocket serverSocket;
+  late ServerSocket serverSocket;
 
   TcpRSocketResponder(
       Uri uri, ServerSocket serverSocket, SocketAcceptor socketAcceptor) {
@@ -67,7 +67,7 @@ class TcpRSocketResponder extends BaseResponder implements Closeable {
 }
 
 class WebSocketRSocketResponder extends BaseResponder implements Closeable {
-  HttpServer httpServer;
+  late HttpServer httpServer;
 
   WebSocketRSocketResponder(
       Uri uri, HttpServer httpServer, SocketAcceptor socketAcceptor) {
