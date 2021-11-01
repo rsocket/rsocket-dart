@@ -13,9 +13,9 @@ void main() {
     var compositeMetadata2 = CompositeMetadata.fromU8Array(uint8array);
     compositeMetadata2.forEach((entry) {
       print('mimeType: ' +
-          entry.mimeType +
+          entry.mimeType! +
           ', content: ' +
-          entry.content.length.toString());
+          entry.content!.length.toString());
     });
   });
 }

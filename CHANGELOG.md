@@ -1,3 +1,5 @@
+### 1.0.0 - 10/25/2021
+  * NullSafety support
 ### 0.1.2 - 09/21/202
 
   * Add buffer for chunks of one RSocket Frame

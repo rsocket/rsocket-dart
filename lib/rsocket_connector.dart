@@ -8,13 +8,13 @@ import 'core/rsocket_requester.dart';
 import 'duplex_connection.dart';
 
 class RSocketConnector {
-  Payload payload;
+  Payload? payload;
   int keepAliveInterval = 20;
   int keepAliveMaxLifeTime = 90;
   String _dataMimeType = 'application/json';
   String _metadataMimeType = 'message/x.rsocket.composite-metadata.v0';
-  ErrorConsumer _errorConsumer;
-  SocketAcceptor _acceptor;
+  ErrorConsumer? _errorConsumer;
+  SocketAcceptor? _acceptor;
 
   RSocketConnector.create();
 
@@ -59,7 +59,7 @@ class RSocketConnector {
           RSocketRequester('requester', connectionSetupPayload, conn);
       if (_acceptor != null) {
         rsocketRequester.responder =
-            _acceptor(connectionSetupPayload, rsocketRequester);
+            _acceptor!(connectionSetupPayload, rsocketRequester);
         if (rsocketRequester.responder == null) {
           rsocketRequester.close();
           return Future.error(

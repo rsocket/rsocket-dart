@@ -1,5 +1,5 @@
 format:
-   dartfmt -w lib test
+   dart format lib test
 
 server:
    rsocket-cli -i "pong" --server --debug tcp://localhost:42252
