@@ -261,10 +261,10 @@ class RSocketRequester extends RSocket {
       case frame_types.REQUEST_RESPONSE:
         var requestResponseFrame = frame as RequestResponseFrame;
         if (responder != null && requestResponseFrame.payload != null) {
-          responder!.requestResponse!(requestResponseFrame.payload)
+          responder!.subscribe!(requestResponseFrame.payload)
               .then((payload) {
             connection.write(
-                FrameCodec.encodePayloadFrame(header.streamId, true, payload));
+                FrameCodec.encodePayloadFrame(header.streamId, false, payload));
           }).catchError((error) {
             var rsocketError = convertToRSocketException(error);
             connection.write(FrameCodec.encodeErrorFrame(

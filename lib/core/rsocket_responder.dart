@@ -1,4 +1,6 @@
-import 'dart:io';
+
+
+import 'package:universal_io/io.dart';
 
 import '../core/rsocket_requester.dart';
 import '../duplex_connection.dart';
