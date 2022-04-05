@@ -23,6 +23,7 @@ abstract class DuplexConnection implements Closeable, Availability {
 
 typedef TcpChunkHandler = void Function(Uint8List chunk);
 typedef CloseHandler = void Function();
+typedef SocketClosedCallback = void Function();
 
 class TcpDuplexConnection extends DuplexConnection {
   Socket socket;
@@ -60,8 +61,9 @@ class TcpDuplexConnection extends DuplexConnection {
 class WebSocketDuplexConnection extends DuplexConnection {
   WebSocketChannel webSocket;
   bool closed = true;
+  SocketClosedCallback? socketClosedCallback;
 
-  WebSocketDuplexConnection(this.webSocket);
+  WebSocketDuplexConnection(this.webSocket, {this.socketClosedCallback});
 
   @override
   void init() {
@@ -84,6 +86,7 @@ class WebSocketDuplexConnection extends DuplexConnection {
       closed = true;
       _availability = 0.0;
       closeHandler?.call();
+      socketClosedCallback?.call();
     }
   }
 
@@ -94,7 +97,7 @@ class WebSocketDuplexConnection extends DuplexConnection {
   }
 }
 
-Future<DuplexConnection> connectRSocket(String url, TcpChunkHandler handler) {
+Future<DuplexConnection> connectRSocket(String url, TcpChunkHandler handler,SocketClosedCallback? socketClosedCallback) {
   var uri = Uri.parse(url);
   var scheme = uri.scheme;
   if (scheme == 'tcp') {
@@ -104,7 +107,7 @@ Future<DuplexConnection> connectRSocket(String url, TcpChunkHandler handler) {
     final websocket = WebSocketChannel.connect(
       Uri.parse(url),
     );
-    return Future.value(WebSocketDuplexConnection(websocket));
+    return Future.value(WebSocketDuplexConnection(websocket, socketClosedCallback: socketClosedCallback));
   } else {
     return Future.error('${scheme} unsupported');
   }
