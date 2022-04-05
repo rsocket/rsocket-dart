@@ -155,7 +155,16 @@ class RSocketByteBuffer {
 }
 
 Uint8List i64ToBytes(int value) {
-  return Uint8List(8)..buffer.asByteData().setUint64(0, value, Endian.big);
+  //because of browser limitations
+  int l = value;
+  var b = BytesBuilder();
+  for (int i = 7; i >= 0; i--) {
+    b.addByte(l & 0xFF);
+
+    l >>= 8;
+  }
+  return Uint8List.fromList(b.toBytes().reversed.toList());
+  //return Uint8List(8)..buffer.asByteData().setUint64(0, value, Endian.big);
 }
 
 Uint8List i32ToBytes(int value) {

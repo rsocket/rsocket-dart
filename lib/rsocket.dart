@@ -26,7 +26,7 @@ class RSocket implements Closeable, Availability {
       (Stream<Payload> payloads) => Stream.error(Exception('Unsupported'));
   MetadataPush? metadataPush =
       (Payload? payload) => Future.error(Exception('Unsupported'));
-
+  RequestResponse? subscribe= (Payload? payload)=> Future.error(Exception('Unsupported'));
   @override
   void close() {}
 

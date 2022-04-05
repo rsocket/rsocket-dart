@@ -1,5 +1,7 @@
-import 'dart:io';
 import 'dart:typed_data';
+
+import 'package:universal_io/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'io/bytes.dart';
 import 'rsocket.dart';
@@ -56,14 +58,16 @@ class TcpDuplexConnection extends DuplexConnection {
 }
 
 class WebSocketDuplexConnection extends DuplexConnection {
-  WebSocket webSocket;
-  bool closed = false;
+  WebSocketChannel webSocket;
+  bool closed = true;
 
   WebSocketDuplexConnection(this.webSocket);
 
   @override
   void init() {
-    webSocket.listen((message) {
+
+
+      webSocket.stream.listen((message) {
       var data = message as List<int>;
       var frameLenBytes = i24ToBytes(data.length);
       receiveHandler!(Uint8List.fromList(frameLenBytes + data));
@@ -79,7 +83,6 @@ class WebSocketDuplexConnection extends DuplexConnection {
     if (!closed) {
       closed = true;
       _availability = 0.0;
-      webSocket.close();
       closeHandler?.call();
     }
   }
@@ -87,7 +90,7 @@ class WebSocketDuplexConnection extends DuplexConnection {
   @override
   void write(Uint8List chunk) {
     //remove frame length: 3 bytes
-    webSocket.add(chunk.sublist(3));
+    webSocket.sink.add(chunk.sublist(3));
   }
 }
 
@@ -97,10 +100,13 @@ Future<DuplexConnection> connectRSocket(String url, TcpChunkHandler handler) {
   if (scheme == 'tcp') {
     var socketFuture = Socket.connect(uri.host, uri.port);
     return socketFuture.then((socket) => TcpDuplexConnection(socket));
-  } else if (scheme == 'ws' || scheme == 'wss') {
-    var socketFuture = WebSocket.connect(url);
-    return socketFuture.then((socket) => WebSocketDuplexConnection(socket));
+  }if (scheme == 'ws' || scheme == 'wss') {
+    final websocket = WebSocketChannel.connect(
+      Uri.parse(url),
+    );
+    return Future.value(WebSocketDuplexConnection(websocket));
   } else {
     return Future.error('${scheme} unsupported');
   }
 }
+
