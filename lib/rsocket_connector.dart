@@ -1,11 +1,10 @@
 import 'dart:typed_data';
 
 import 'core/rsocket_error.dart';
-import 'payload.dart';
-import 'rsocket.dart';
-
 import 'core/rsocket_requester.dart';
 import 'duplex_connection.dart';
+import 'payload.dart';
+import 'rsocket.dart';
 
 class RSocketConnector {
   Payload? payload;
@@ -48,8 +47,8 @@ class RSocketConnector {
   Future<RSocket> connect(String url) async {
     TcpChunkHandler handler = (Uint8List chunk) {};
     var connectionSetupPayload = ConnectionSetupPayload()
-      ..keepAliveInterval = keepAliveInterval * 1000
-      ..keepAliveMaxLifetime = keepAliveMaxLifeTime * 1000
+      ..keepAliveInterval = keepAliveInterval
+      ..keepAliveMaxLifetime = keepAliveMaxLifeTime
       ..metadataMimeType = _metadataMimeType
       ..dataMimeType = _dataMimeType
       ..data = payload?.data
