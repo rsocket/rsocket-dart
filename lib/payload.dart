@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'metadata/composite_metadata.dart';
+
 class Payload {
   Uint8List? metadata;
   Uint8List? data;
@@ -12,6 +14,14 @@ class Payload {
   Payload.fromText(String metadata, String data)
       : metadata = Uint8List.fromList(utf8.encode(metadata)),
         data = Uint8List.fromList(utf8.encode(data));
+   
+  Payload.routeAndData(String route, String data){
+    var compositeMetadata = CompositeMetadata.fromEntries([
+      RoutingMetadata(route, List.empty())
+    ]);
+    this.metadata = compositeMetadata.toUint8Array();
+    this.data = Uint8List.fromList(utf8.encode(data));
+  }
 
   String? getMetadataUtf8() {
     if (metadata != null) {
