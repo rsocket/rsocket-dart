@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:rsocket/metadata/composite_metadata.dart';
+
+import 'metadata/composite_metadata.dart';
 
 class Payload {
   Uint8List? metadata;
