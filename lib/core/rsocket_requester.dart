@@ -153,7 +153,7 @@ class RSocketRequester extends RSocket {
     connection.write(setupPayloadFrame());
     if (mode == 'requester') {
       keepAliveTimer = Timer.periodic(
-          Duration(seconds: connectionSetupPayload!.keepAliveInterval),
+          Duration(milliseconds: connectionSetupPayload!.keepAliveIntervalMs),
           (Timer t) {
         if (!closed) {
           connection.write(FrameCodec.encodeKeepAlive(false, 0));
@@ -261,8 +261,7 @@ class RSocketRequester extends RSocket {
       case frame_types.REQUEST_RESPONSE:
         var requestResponseFrame = frame as RequestResponseFrame;
         if (responder != null && requestResponseFrame.payload != null) {
-          responder!.subscribe!(requestResponseFrame.payload)
-              .then((payload) {
+          responder!.subscribe!(requestResponseFrame.payload).then((payload) {
             connection.write(
                 FrameCodec.encodePayloadFrame(header.streamId, false, payload));
           }).catchError((error) {
@@ -315,8 +314,8 @@ class RSocketRequester extends RSocket {
 
   Uint8List setupPayloadFrame() {
     return FrameCodec.encodeSetupFrame(
-        connectionSetupPayload!.keepAliveInterval,
-        connectionSetupPayload!.keepAliveMaxLifetime,
+        connectionSetupPayload!.keepAliveIntervalMs,
+        connectionSetupPayload!.keepAliveMaxLifetimeMs,
         connectionSetupPayload!.metadataMimeType,
         connectionSetupPayload!.dataMimeType,
         connectionSetupPayload);
