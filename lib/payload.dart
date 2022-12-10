@@ -44,16 +44,16 @@ class Payload {
 class ConnectionSetupPayload extends Payload {
   String metadataMimeType = 'message/x.rsocket.composite-metadata.v0';
   String dataMimeType = 'application/json';
-  int keepAliveInterval = 20;
-  int keepAliveMaxLifetime = 90;
+  int keepAliveIntervalMs = 20 * 1000; // 20 seconds
+  int keepAliveMaxLifetimeMs = 90 * 1000; // 90 seconds
   int flags = 0;
 
   @override
   Map toJson() => {
         'metadataMimeType': metadataMimeType,
         'dataMimeType': dataMimeType,
-        'keepAliveInterval': keepAliveInterval,
-        'keepAliveMaxLifetime': keepAliveMaxLifetime,
+        'keepAliveInterval': keepAliveIntervalMs,
+        'keepAliveMaxLifetime': keepAliveMaxLifetimeMs,
         'flags': flags,
         'metadata': metadata,
         'data': data

@@ -1,6 +1,5 @@
-
-
 import 'package:universal_io/io.dart';
+import 'package:web_socket_channel/src/channel.dart';
 
 import '../core/rsocket_requester.dart';
 import '../duplex_connection.dart';
@@ -21,8 +20,8 @@ class BaseResponder {
         if (header.type == frame_types.SETUP) {
           var setupFrame = frame as SetupFrame;
           var connectionSetupPayload = ConnectionSetupPayload()
-            ..keepAliveInterval = setupFrame.keepAliveInterval
-            ..keepAliveMaxLifetime = setupFrame.keepAliveMaxLifetime
+            ..keepAliveIntervalMs = setupFrame.keepAliveIntervalMs
+            ..keepAliveMaxLifetimeMs = setupFrame.keepAliveMaxLifetimeMs
             ..metadataMimeType = setupFrame.metadataMimeType
             ..dataMimeType = setupFrame.dataMimeType
             ..data = setupFrame.payload?.data
@@ -82,8 +81,8 @@ class WebSocketRSocketResponder extends BaseResponder implements Closeable {
     httpServer.listen((HttpRequest req) {
       if (req.uri.path == uri.path) {
         WebSocketTransformer.upgrade(req)
-            .then((webSocket) =>
-                receiveConnection(WebSocketDuplexConnection(webSocket)))
+            .then((webSocket) => receiveConnection(
+                WebSocketDuplexConnection(webSocket as WebSocketChannel)))
             .then((value) => {});
       }
     });
