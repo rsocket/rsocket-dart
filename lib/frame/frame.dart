@@ -38,7 +38,7 @@ RSocketFrame? parseFrame(RSocketByteBuffer byteBuffer) {
       frame = RequestFNFFrame.fromBuffer(header, byteBuffer);
       break;
     case frame_types.REQUEST_STREAM:
-      frame = RequestFNFFrame.fromBuffer(header, byteBuffer);
+      frame = RequestStreamFrame.fromBuffer(header, byteBuffer);
       break;
     case frame_types.REQUEST_CHANNEL:
       frame = RequestChannelFrame.fromBuffer(header, byteBuffer);
