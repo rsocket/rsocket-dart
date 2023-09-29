@@ -35,7 +35,7 @@ class Payload {
       payload.metadata = Uint8List.fromList(json['metadata'].cast<int>());
     }
     if (json['data'] != null) {
-      payload.metadata = Uint8List.fromList(json['data'].cast<int>());
+      payload.data = Uint8List.fromList(json['data'].cast<int>());
     }
     return payload;
   }
