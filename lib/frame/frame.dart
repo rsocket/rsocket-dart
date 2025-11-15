@@ -118,8 +118,8 @@ class SetupFrame extends RSocketFrame {
   Payload? payload;
   String metadataMimeType = 'message/x.rsocket.composite-metadata.v0';
   String dataMimeType = 'application/json';
-  int keepAliveInterval = 20;
-  int keepAliveMaxLifetime = 90;
+  int keepAliveIntervalMs = 20 * 1000; // 20 seconds
+  int keepAliveMaxLifetimeMs = 90 * 1000; // 90 seconds
   String? resumeToken;
   bool leaseEnable = false;
 
@@ -135,11 +135,11 @@ class SetupFrame extends RSocketFrame {
     var minorVersion = buffer.readI16();
     var keepAliveInterval = buffer.readI32();
     if (keepAliveInterval != null) {
-      this.keepAliveInterval = keepAliveInterval;
+      this.keepAliveIntervalMs = keepAliveInterval;
     }
     var keepAliveMaxLifetime = buffer.readI32();
     if (keepAliveMaxLifetime != null) {
-      this.keepAliveMaxLifetime = keepAliveMaxLifetime;
+      this.keepAliveMaxLifetimeMs = keepAliveMaxLifetime;
     }
     //resume token extraction
     if (resumeEnable) {
@@ -337,8 +337,8 @@ class PayloadFrame extends RSocketFrame {
 
 class FrameCodec {
   static Uint8List encodeSetupFrame(
-      int keepAliveInterval,
-      int keepAliveMaxLifetime,
+      int keepAliveIntervalMs,
+      int keepAliveMaxLifetimeMs,
       String metadataMimeType,
       String dataMimeType,
       Payload? setupPayload) {
@@ -350,8 +350,8 @@ class FrameCodec {
         frameBuffer, frame_types.SETUP, setupPayload?.metadata, 0);
     frameBuffer.writeI16(MAJOR_VERSION);
     frameBuffer.writeI16(MINOR_VERSION);
-    frameBuffer.writeI32(keepAliveInterval);
-    frameBuffer.writeI32(keepAliveMaxLifetime);
+    frameBuffer.writeI32(keepAliveIntervalMs);
+    frameBuffer.writeI32(keepAliveMaxLifetimeMs);
     //Metadata Encoding MIME Type
     frameBuffer.writeI8(metadataMimeType.length);
     frameBuffer.writeBytes(utf8.encode(metadataMimeType));

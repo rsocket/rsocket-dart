@@ -8,8 +8,8 @@ import 'rsocket.dart';
 
 class RSocketConnector {
   Payload? payload;
-  int keepAliveInterval = 20;
-  int keepAliveMaxLifeTime = 90;
+  int keepAliveIntervalMs = 20 * 1000; // 20 seconds
+  int keepAliveMaxLifeTimeMs = 90 * 1000; // 90 seconds
   String _dataMimeType = 'application/json';
   String _metadataMimeType = 'message/x.rsocket.composite-metadata.v0';
   ErrorConsumer? _errorConsumer;
@@ -39,16 +39,16 @@ class RSocketConnector {
 
   // set the keep alive, and unit is second
   RSocketConnector keepAlive(int interval, int maxLifeTime) {
-    this.keepAliveInterval = interval;
-    this.keepAliveMaxLifeTime = maxLifeTime;
+    this.keepAliveIntervalMs = interval * 1000;
+    this.keepAliveMaxLifeTimeMs = maxLifeTime * 1000;
     return this;
   }
 
   Future<RSocket> connect(String url) async {
     TcpChunkHandler handler = (Uint8List chunk) {};
     var connectionSetupPayload = ConnectionSetupPayload()
-      ..keepAliveInterval = keepAliveInterval
-      ..keepAliveMaxLifetime = keepAliveMaxLifeTime
+      ..keepAliveIntervalMs = keepAliveIntervalMs
+      ..keepAliveMaxLifetimeMs = keepAliveMaxLifeTimeMs
       ..metadataMimeType = _metadataMimeType
       ..dataMimeType = _dataMimeType
       ..data = payload?.data
