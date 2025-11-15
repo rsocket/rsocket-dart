@@ -37,6 +37,11 @@ class RSocketConnector {
     return this;
   }
 
+  RSocketConnector errorConsumer(ErrorConsumer errorConsumer) {
+    _errorConsumer = errorConsumer;
+    return this;
+  }
+
   // set the keep alive, and unit is second
   RSocketConnector keepAlive(int interval, int maxLifeTime) {
     this.keepAliveIntervalMs = interval * 1000;
